@@ -1,3 +1,7 @@
+#
+# 
+# for i in $(seq 1 192609 ); do sed $i"q;d" dataset/business.json|python -m json.tool > /dev/null || echo $i not ok ; done 
+# 
 import csv
 import json
 import os
@@ -144,6 +148,7 @@ if not os.path.isfile("data/category_header.csv"):
                 #print(x)
             
             for category in x:
+                # if category == '& Probates' -> skip
                 unique_categories.add(category)
                 business_category_writer.writerow( [item["business_id"], category] )
                 #print( [item["business_id"], str(category)] )
@@ -173,8 +178,11 @@ if not os.path.isfile("data/user_header.csv"):
         for line in user_json.readlines():
             item = json.loads(line)
             user_writer.writerow([item["user_id"], item["name"]])
-            for friend_id in item["friends"]:
-                user_user_writer.writerow([item["user_id"], friend_id])
+            if item["friends"] != None:
+                x = item["friends"].split(',')
+                x= [ y.strip() for y in x]
+                for friend_id in x:
+                    user_user_writer.writerow([item["user_id"], friend_id])
 
 if not os.path.isfile("data/review_header.csv"):
     with open("dataset/review.json") as review_json, \
@@ -182,7 +190,8 @@ if not os.path.isfile("data/review_header.csv"):
             open("data/user_WROTE_review.csv", 'w') as user_review_csv, \
             open("data/review_REVIEWS_business.csv", 'w') as review_business_csv:
 
-        write_header("data/review_header.csv", ['id:ID(Review)', 'text', 'stars:int', 'date'])
+        #write_header("data/review_header.csv", ['id:ID(Review)', 'text', 'stars:int', 'date'])
+        write_header("data/review_header.csv", ['id:ID(Review)', 'stars:int', 'date'])
         write_header("data/user_WROTE_review_header.csv", [':START_ID(User)', ':END_ID(Review)'])
         write_header("data/review_REVIEWS_business_header.csv", [':START_ID(Review)', ':END_ID(Business)'])
 
@@ -192,6 +201,9 @@ if not os.path.isfile("data/review_header.csv"):
 
         for line in review_json.readlines():
             item = json.loads(line)
-            review_writer.writerow([item["review_id"], item["text"], item["stars"], item["date"]])
-            user_review_writer.writerow([item["user_id"], item["review_id"]])
-            review_business_writer.writerow([item["review_id"], item["business_id"]])
+            #review_writer.writerow([item["review_id"], item["text"], item["stars"], item["date"]])
+            review_writer.writerow([item["review_id"], item["stars"], item["date"]])    # review.csv
+            user_review_writer.writerow([item["user_id"], item["review_id"]])           # user_WROTE_review.csv
+            review_business_writer.writerow([item["review_id"], item["business_id"]])   # review_REVIEWS_business.csv
+
+            
