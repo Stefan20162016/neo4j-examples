@@ -1,6 +1,6 @@
 #
 # 
-# for i in $(seq 1 192609 ); do sed $i"q;d" dataset/business.json|python -m json.tool > /dev/null || echo $i not ok ; done 
+# for i in $(seq 1 192609 ); do if (( $i % 1000 == 0 )); then echo $i; fi; sed $i"q;d" dataset/business.json|python -m json.tool > /dev/null || echo $i not ok ; done 
 # 
 import csv
 import json
@@ -191,7 +191,7 @@ if not os.path.isfile("data/review_header.csv"):
             open("data/review_REVIEWS_business.csv", 'w') as review_business_csv:
 
         #write_header("data/review_header.csv", ['id:ID(Review)', 'text', 'stars:int', 'date'])
-        write_header("data/review_header.csv", ['id:ID(Review)', 'stars:int', 'date'])
+        write_header("data/review_header.csv", ['id:ID(Review)', 'stars:double', 'date'])
         write_header("data/user_WROTE_review_header.csv", [':START_ID(User)', ':END_ID(Review)'])
         write_header("data/review_REVIEWS_business_header.csv", [':START_ID(Review)', ':END_ID(Business)'])
 
